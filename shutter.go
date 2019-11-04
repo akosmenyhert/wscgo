@@ -16,6 +16,8 @@ type shutter struct {
 
 	topic    string
 	Callback shutterCallback
+
+        PrevDir int
 }
 
 func (shutter *shutter) up() {
@@ -52,6 +54,12 @@ func (shutter *shutter) setCmd(steps int) {
 		} else {
 			shutter.Cmd += steps
 		}
+
+                if shutter.PrevDir < 0 {
+                   shutter.Wait = shutter.DirSwitchWait
+                }
+
+                shutter.PrevDir = 1
 	} else {
 		//down
 		if shutter.Cmd > 0 {
@@ -61,13 +69,19 @@ func (shutter *shutter) setCmd(steps int) {
 		} else {
 			shutter.Cmd += steps
 		}
+
+                if shutter.PrevDir > 0 {
+                   shutter.Wait = shutter.DirSwitchWait
+                }
+
+                shutter.PrevDir = -1
 	}
 }
 
 func (shutter *shutter) tick() {
 	if shutter.Cmd == 0 {
 		shutter.stop()
-	} else {
+	}
 		if shutter.Wait > 0 {
 			shutter.stop()
 			shutter.Wait--
@@ -95,5 +109,4 @@ func (shutter *shutter) tick() {
 				}
 			}
 		}
-	}
 }
